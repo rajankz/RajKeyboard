@@ -119,6 +119,16 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
 
     private final KeyTimerHandler mKeyTimerHandler;
 
+    //rajankz
+    int pointerIndex1, pointerIndex2;
+    float startX1, startX2, startY1, startY2, endX1, endX2, endY1, endY2;
+    final float MOVE_THRESHOLD = 10.0f;
+    float diffX1,diffY1,diffX2,diffY2;
+    boolean inGestureMode = false;
+
+    private static final Paint dimPaint = new Paint();
+
+
     private static class KeyTimerHandler extends StaticInnerHandlerWrapper<LatinKeyboardView>
             implements TimerProxy {
         private static final int MSG_REPEAT_KEY = 1;
@@ -329,6 +339,7 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
 
     public LatinKeyboardView(Context context, AttributeSet attrs) {
         this(context, attrs, R.attr.latinKeyboardViewStyle);
+        init();
     }
 
     public LatinKeyboardView(Context context, AttributeSet attrs, int defStyle) {
@@ -382,6 +393,11 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
                 altCodeKeyWhileTypingFadeoutAnimatorResId, this);
         mAltCodeKeyWhileTypingFadeinAnimator = loadObjectAnimator(
                 altCodeKeyWhileTypingFadeinAnimatorResId, this);
+
+        pointerIndex1 = pointerIndex2 = -1;
+        startX1 = startX2 = startY1 = startY2 = 0.0f;
+        endX1 = endX2 = endY1 = endY2 = 0.0f;
+        init();
     }
 
     private ObjectAnimator loadObjectAnimator(int resId, Object target) {
@@ -640,10 +656,94 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
 
     @Override
     public boolean onTouchEvent(MotionEvent me) {
-        if (getKeyboard() == null) {
-            return false;
+        final int action = me.getAction();
+        String actionStr;
+        int totalPointers = me.getPointerCount();
+        if(totalPointers<2)
+            return processMotionEvent(me);
+
+        //int pointerIndex = (action & me.getActionIndex());
+        //int pointerIndex2= (action & MotionEvent.ACTION_POINTER_INDEX_MASK)
+        //        >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
+        //int pointerId=-1;
+        //int currentPointerIndex=-1;
+        String event="";
+        //Log.d("LKV","total pointers="+totalPointers);
+
+
+
+        switch(action & MotionEvent.ACTION_MASK){
+            case MotionEvent.ACTION_DOWN:{
+                if(totalPointers==1)  {
+                    pointerIndex1 = (action & me.getActionIndex());
+                    return processMotionEvent(me);
+                }
+                else if(totalPointers == 2){
+                    pointerIndex2= (action & MotionEvent.ACTION_POINTER_INDEX_MASK)
+                            >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
+                    startX1 = me.getX(0);
+                    startX2 = me.getX(1);
+                    startY1 = me.getY(0);
+                    startY2 = me.getY(1);
+                    inGestureMode = true;
+                }
+                invalidate();
+                return true;
+            }
+            case MotionEvent.ACTION_MOVE:{
+                if(totalPointers < 2)
+                    break;
+                //Log.d("LKV","x1="+startX1+" y1="+startY1+" x2="+startX2+" y2="+startY2);
+                endX1=me.getX(0);
+                endX2=me.getX(1);
+                endY1=me.getY(0);
+                endY2=me.getY(1);
+
+                //find difference
+                diffX1=startX1-endX1;
+                diffX2=startX2-endX2;
+                diffY1=startY1-endY1;
+                diffY2=startY2-endY2;
+                //Log.d("LKV","diffX1="+diffX1+" diffY1="+diffY1+" diffX2="+diffX2+" diffY2="+diffY2);
+                //diffX1=diffX1<0?diffX1*-1:diffX1;
+                //diffX2=diffX2<0?diffX2*-1:diffX2;
+                //diffY1=diffY1<0?diffY1*-1:diffY1;
+                //diffY2=diffY2<0?diffY2*-1:diffY2;
+                //are they moving together
+                if(diffX1>0 && diffX2>0) //moving left
+                    Log.d("LKV","moving left");
+                else if(diffX1<0 && diffX2<0)
+                    Log.d("LKV","moving right");
+
+                if(diffY1>0 && diffY2>0)
+                    Log.d("LKV","going up");
+                else if(diffY1<0 && diffY2<0)
+                    Log.d("LKV","moving down");
+
+                //reset;
+                startX1 = endX1;
+                startX2 = endX2;
+                startY1 = endY1;
+                startY2 = endY2;
+
+                return true;
+
+            }
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_POINTER_UP:
+            {
+                //if(inGestureMode){
+                    inGestureMode = false;
+                    invalidate();
+                    return true;
+                //}else{
+                //    return processMotionEvent(me);
+                //}
+            }
+
         }
-        return mTouchScreenRegulator.onTouchEvent(me);
+
+        return true;
     }
 
     @Override
@@ -803,9 +903,23 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
         return false;
     }
 
+
+
+    private void init(){
+        setWillNotDraw(false);
+
+        dimPaint.setColor((int) (0.5 * 0xFF) << 24);
+        //sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getContext());
+        inGestureMode = false;
+    }
+
     @Override
     public void draw(Canvas c) {
-        Utils.GCUtils.getInstance().reset();
+        super.draw(c);
+        if(inGestureMode) {
+            c.drawRect(0,0,getWidth(),getHeight(), dimPaint);
+        }
+        /*Utils.GCUtils.getInstance().reset();
         boolean tryGC = true;
         for (int i = 0; i < Utils.GCUtils.GC_TRY_LOOP_MAX && tryGC; ++i) {
             try {
@@ -814,7 +928,7 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
             } catch (OutOfMemoryError e) {
                 tryGC = Utils.GCUtils.getInstance().tryGCOrWait(TAG, e);
             }
-        }
+        } */
     }
 
     /**

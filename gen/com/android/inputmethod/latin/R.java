@@ -1831,12 +1831,7 @@ containing a value of this type.
     }
     public static final class raw {
         public static final int main=0x7f060000;
-        public static final int main_de=0x7f060001;
-        public static final int main_en=0x7f060002;
-        public static final int main_es=0x7f060003;
-        public static final int main_fr=0x7f060004;
-        public static final int main_it=0x7f060005;
-        public static final int main_pt_br=0x7f060006;
+        public static final int main_en=0x7f060001;
     }
     public static final class string {
         /**  Title of the button to add custom style entry in the settings dialog [CHAR LIMIT=15] 
