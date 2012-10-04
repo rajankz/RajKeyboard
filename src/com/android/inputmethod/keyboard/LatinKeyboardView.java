@@ -124,7 +124,13 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
     float startX1, startX2, startY1, startY2, endX1, endX2, endY1, endY2;
     final float MOVE_THRESHOLD = 10.0f;
     float diffX1,diffY1,diffX2,diffY2;
+
+    private enum LR{LEFT,RIGHT};
+    private enum UD{UP, DOWN};
+    private String mvDir;
+
     boolean inGestureMode = false;
+    boolean previouslyWasGesturing = false;
 
     private static final Paint dimPaint = new Paint();
 
@@ -149,21 +155,21 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
             final LatinKeyboardView keyboardView = getOuterInstance();
             final PointerTracker tracker = (PointerTracker) msg.obj;
             switch (msg.what) {
-            case MSG_REPEAT_KEY:
-                tracker.onRegisterKey(tracker.getKey());
-                startKeyRepeatTimer(tracker, mParams.mKeyRepeatInterval);
-                break;
-            case MSG_LONGPRESS_KEY:
-                if (tracker != null) {
-                    keyboardView.openMoreKeysKeyboardIfRequired(tracker.getKey(), tracker);
-                } else {
-                    KeyboardSwitcher.getInstance().onLongPressTimeout(msg.arg1);
-                }
-                break;
-            case MSG_TYPING_STATE_EXPIRED:
-                cancelAndStartAnimators(keyboardView.mAltCodeKeyWhileTypingFadeoutAnimator,
-                        keyboardView.mAltCodeKeyWhileTypingFadeinAnimator);
-                break;
+                case MSG_REPEAT_KEY:
+                    tracker.onRegisterKey(tracker.getKey());
+                    startKeyRepeatTimer(tracker, mParams.mKeyRepeatInterval);
+                    break;
+                case MSG_LONGPRESS_KEY:
+                    if (tracker != null) {
+                        keyboardView.openMoreKeysKeyboardIfRequired(tracker.getKey(), tracker);
+                    } else {
+                        KeyboardSwitcher.getInstance().onLongPressTimeout(msg.arg1);
+                    }
+                    break;
+                case MSG_TYPING_STATE_EXPIRED:
+                    cancelAndStartAnimators(keyboardView.mAltCodeKeyWhileTypingFadeoutAnimator,
+                            keyboardView.mAltCodeKeyWhileTypingFadeinAnimator);
+                    break;
             }
         }
 
@@ -191,12 +197,12 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
             cancelLongPressTimer();
             final int delay;
             switch (code) {
-            case Keyboard.CODE_SHIFT:
-                delay = mParams.mLongPressShiftKeyTimeout;
-                break;
-            default:
-                delay = 0;
-                break;
+                case Keyboard.CODE_SHIFT:
+                    delay = mParams.mLongPressShiftKeyTimeout;
+                    break;
+                default:
+                    delay = 0;
+                    break;
             }
             if (delay > 0) {
                 sendMessageDelayed(obtainMessage(MSG_LONGPRESS_KEY, code, 0), delay);
@@ -212,18 +218,18 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
             final Key key = tracker.getKey();
             final int delay;
             switch (key.mCode) {
-            case Keyboard.CODE_SHIFT:
-                delay = mParams.mLongPressShiftKeyTimeout;
-                break;
-            default:
-                if (KeyboardSwitcher.getInstance().isInMomentarySwitchState()) {
-                    // We use longer timeout for sliding finger input started from the symbols
-                    // mode key.
-                    delay = mParams.mLongPressKeyTimeout * 3;
-                } else {
-                    delay = mParams.mLongPressKeyTimeout;
-                }
-                break;
+                case Keyboard.CODE_SHIFT:
+                    delay = mParams.mLongPressShiftKeyTimeout;
+                    break;
+                default:
+                    if (KeyboardSwitcher.getInstance().isInMomentarySwitchState()) {
+                        // We use longer timeout for sliding finger input started from the symbols
+                        // mode key.
+                        delay = mParams.mLongPressKeyTimeout * 3;
+                    } else {
+                        delay = mParams.mLongPressKeyTimeout;
+                    }
+                    break;
             }
             if (delay > 0) {
                 sendMessageDelayed(obtainMessage(MSG_LONGPRESS_KEY, tracker), delay);
@@ -236,7 +242,7 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
         }
 
         public static void cancelAndStartAnimators(final ObjectAnimator animatorToCancel,
-                final ObjectAnimator animatorToStart) {
+                                                   final ObjectAnimator animatorToStart) {
             float startFraction = 0.0f;
             if (animatorToCancel.isStarted()) {
                 animatorToCancel.cancel();
@@ -673,19 +679,24 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
 
 
         switch(action & MotionEvent.ACTION_MASK){
-            case MotionEvent.ACTION_DOWN:{
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_POINTER_DOWN:
+            {
+                previouslyWasGesturing = false;
                 if(totalPointers==1)  {
-                    pointerIndex1 = (action & me.getActionIndex());
+                    //pointerIndex1 = (action & me.getActionIndex());
                     return processMotionEvent(me);
                 }
                 else if(totalPointers == 2){
-                    pointerIndex2= (action & MotionEvent.ACTION_POINTER_INDEX_MASK)
-                            >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
+                    //pointerIndex2= (action & MotionEvent.ACTION_POINTER_INDEX_MASK)
+                    //        >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
                     startX1 = me.getX(0);
                     startX2 = me.getX(1);
                     startY1 = me.getY(0);
                     startY2 = me.getY(1);
                     inGestureMode = true;
+                    closing();
+                    dimEntireKeyboard(false);
                 }
                 invalidate();
                 return true;
@@ -709,16 +720,23 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
                 //diffX2=diffX2<0?diffX2*-1:diffX2;
                 //diffY1=diffY1<0?diffY1*-1:diffY1;
                 //diffY2=diffY2<0?diffY2*-1:diffY2;
+                mvDir = "";
                 //are they moving together
                 if(diffX1>0 && diffX2>0) //moving left
-                    Log.d("LKV","moving left");
+                    mvDir += LR.LEFT;
+                    //Log.d("LKV","moving left");
                 else if(diffX1<0 && diffX2<0)
-                    Log.d("LKV","moving right");
+                    //Log.d("LKV","moving right");
+                    mvDir += LR.RIGHT;
+
+                mvDir +=" ";
 
                 if(diffY1>0 && diffY2>0)
-                    Log.d("LKV","going up");
+                    //Log.d("LKV","going up");
+                    mvDir+=UD.UP;
                 else if(diffY1<0 && diffY2<0)
-                    Log.d("LKV","moving down");
+                    mvDir+=UD.DOWN;
+                //Log.d("LKV","moving down");
 
                 //reset;
                 startX1 = endX1;
@@ -726,24 +744,37 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
                 startY1 = endY1;
                 startY2 = endY2;
 
+                Log.d("LKV",mvDir);
+
                 return true;
 
             }
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_POINTER_UP:
             {
-                //if(inGestureMode){
+                //handle pointer up for gesture exit
+                if(previouslyWasGesturing)return true;
+
+                if(inGestureMode){
+                    previouslyWasGesturing = true;
                     inGestureMode = false;
+                    closing();
                     invalidate();
                     return true;
+                }
                 //}else{
                 //    return processMotionEvent(me);
                 //}
+                break;
             }
 
         }
 
-        return true;
+        if(previouslyWasGesturing){
+            closing();
+            invalidate();return true;
+        }
+        return processMotionEvent(me);
     }
 
     @Override
@@ -799,7 +830,7 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
                 final float pressure = me.getPressure(index);
                 UsabilityStudyLogUtils.getInstance().write(
                         eventTag + eventTime + "," + id + "," + x + "," + y + ","
-                        + size + "," + pressure);
+                                + size + "," + pressure);
             }
         }
         if (ProductionFlag.IS_EXPERIMENTAL) {
@@ -967,7 +998,7 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
     }
 
     public void startDisplayLanguageOnSpacebar(boolean subtypeChanged,
-            boolean needsToDisplayLanguage, boolean hasMultipleEnabledIMEsOrSubtypes) {
+                                               boolean needsToDisplayLanguage, boolean hasMultipleEnabledIMEsOrSubtypes) {
         mNeedsToDisplayLanguage = needsToDisplayLanguage;
         mHasMultipleEnabledIMEsOrSubtypes = hasMultipleEnabledIMEsOrSubtypes;
         final ObjectAnimator animator = mLanguageOnSpacebarFadeoutAnimator;
@@ -1028,7 +1059,7 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
 
     // Layout language name on spacebar.
     private String layoutLanguageOnSpacebar(Paint paint, InputMethodSubtype subtype,
-            final int width) {
+                                            final int width) {
         // Choose appropriate language name to fit into the width.
         String text = getFullDisplayName(subtype, getResources());
         if (fitsTextIntoWidth(width, text, paint)) {
