@@ -711,6 +711,9 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
                 endY2=me.getY(1);
 
                 //find difference
+                diffX1=diffX2=diffY1=diffY2=0.0f;
+                //if(endX1-startX1>0)
+
                 diffX1=startX1-endX1;
                 diffX2=startX2-endX2;
                 diffY1=startY1-endY1;
@@ -750,16 +753,24 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
 
             }
             case MotionEvent.ACTION_UP:
+                if(previouslyWasGesturing){
+                    closing();
+                    invalidate();
+                    previouslyWasGesturing = false;
+                    return true;
+                }
+                return processMotionEvent(me);
+
             case MotionEvent.ACTION_POINTER_UP:
             {
                 //handle pointer up for gesture exit
-                if(previouslyWasGesturing)return true;
+                //if(previouslyWasGesturing)return true;
 
                 if(inGestureMode){
                     previouslyWasGesturing = true;
-                    inGestureMode = false;
-                    closing();
-                    invalidate();
+                    //inGestureMode = false;
+                    //closing();
+                    //invalidate();
                     return true;
                 }
                 //}else{
