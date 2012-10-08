@@ -203,10 +203,10 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
 
     @Override
     public void onGesturePerformed(int LR, int UD) {
-        LR=UD=-1;
         final InputConnection ic = getCurrentInputConnection();
         ic.beginBatchEdit();
-        ic.commitText(null,-5);
+        int movPos = (UD * 10) + LR;
+        ic.commitText("",movPos);
     }
 
     public static class UIHandler extends StaticInnerHandlerWrapper<LatinIME> {

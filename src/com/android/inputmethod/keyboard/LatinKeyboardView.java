@@ -140,6 +140,7 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
 
     private static final Paint dimPaint = new Paint();
     private boolean mHandleGestureActions;
+    int lr, ud;
 
 
     private static class KeyTimerHandler extends StaticInnerHandlerWrapper<LatinKeyboardView>
@@ -674,11 +675,11 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
         }
     }
 
-    private void fireOnGesturePerformed() {
+    private void fireOnGesturePerformed(int LR, int UD) {
         final ArrayList<OnGesturePerformedListener> actionListeners = mOnGesturePerformedListeners;
         final int count = actionListeners.size();
         for (int i = 0; i < count; i++) {
-            actionListeners.get(i).onGesturePerformed(-1, -1);
+            actionListeners.get(i).onGesturePerformed(LR, UD);
         }
     }
 
@@ -743,10 +744,24 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
                 diffX1=diffX2=diffY1=diffY2=0.0f;
                 //if(endX1-startX1>0)
 
-                diffX1=startX1-endX1;
-                diffX2=startX2-endX2;
-                diffY1=startY1-endY1;
-                diffY2=startY2-endY2;
+               // diffX1=startX1-endX1;
+                if(startX1-endX1>MOVE_THRESHOLD)diffX1=1;
+                else if(endX1-startX1>MOVE_THRESHOLD)diffX1=-1;
+
+                if(startX2-endX2>MOVE_THRESHOLD)diffX2=1;
+                else if(endX2-startX2>MOVE_THRESHOLD)diffX2=-1;
+
+                if(startY1-endY1>MOVE_THRESHOLD)diffY1=1;
+                else if(endY1-startY1>MOVE_THRESHOLD)diffY1=-1;
+
+                if(startY2-endY2>MOVE_THRESHOLD)diffY2=1;
+                else if(endY2-startY2>MOVE_THRESHOLD)diffY2=-1;
+
+
+
+                //diffX2=startX2-endX2;
+                //diffY1=startY1-endY1;
+                //diffY2=startY2-endY2;
                 //Log.d("LKV","diffX1="+diffX1+" diffY1="+diffY1+" diffX2="+diffX2+" diffY2="+diffY2);
                 //diffX1=diffX1<0?diffX1*-1:diffX1;
                 //diffX2=diffX2<0?diffX2*-1:diffX2;
@@ -754,30 +769,52 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
                 //diffY2=diffY2<0?diffY2*-1:diffY2;
                 mvDir = "";
                 //are they moving together
-                if(diffX1>0 && diffX2>0) //moving left
+                lr=ud=0;
+                if(diffX1>0 && diffX2>0) //moving left  {
+                {
                     mvDir += LR.LEFT;
+                    startX1 = endX1;
+                    startX2 = endX2;
+                    lr=1;
+                }
                     //Log.d("LKV","moving left");
                 else if(diffX1<0 && diffX2<0)
                     //Log.d("LKV","moving right");
+                {
                     mvDir += LR.RIGHT;
+                    startX1 = endX1;
+                    startX2 = endX2;
+                    lr=-1;
+                }
 
                 mvDir +=" ";
 
                 if(diffY1>0 && diffY2>0)
                     //Log.d("LKV","going up");
+                {
                     mvDir+=UD.UP;
+                    startY1 = endY1;
+                    startY2 = endY2;
+                    ud=1;
+                }
                 else if(diffY1<0 && diffY2<0)
+                {
                     mvDir+=UD.DOWN;
+                    startY1 = endY1;
+                    startY2 = endY2;
+                    ud=-1;
+                }
                 //Log.d("LKV","moving down");
 
                 //reset;
-                startX1 = endX1;
-                startX2 = endX2;
-                startY1 = endY1;
-                startY2 = endY2;
+                //startX1 = endX1;
+                //startX2 = endX2;
+                //startY1 = endY1;
+                //startY2 = endY2;
 
                 Log.d("LKV",mvDir);
-                fireOnGesturePerformed();
+                if(lr!=0 || ud!=0)
+                    fireOnGesturePerformed(lr,ud);
 
                 return true;
 

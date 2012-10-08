@@ -22,7 +22,7 @@
   </component>
   <component name="DebuggerManager">
     <line_breakpoints>
-      <breakpoint url="file://$PROJECT_DIR$/src/com/android/inputmethod/keyboard/LatinKeyboardView.java" line="996" class="com.android.inputmethod.keyboard.LatinKeyboardView" package="com.android.inputmethod.keyboard">
+      <breakpoint url="file://$PROJECT_DIR$/src/com/android/inputmethod/keyboard/LatinKeyboardView.java" line="1033" class="com.android.inputmethod.keyboard.LatinKeyboardView" package="com.android.inputmethod.keyboard">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -76,22 +76,22 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="LatinKeyboardView.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="LatinKeyboardView.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/com/android/inputmethod/keyboard/LatinKeyboardView.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="676" column="17" selection-start="27503" selection-end="27503" vertical-scroll-proportion="-5.5">
+            <state line="815" column="27" selection-start="32377" selection-end="32377" vertical-scroll-proportion="0.68604654">
               <folding>
-                <element signature="e#0#48820#0" expanded="true" />
+                <element signature="e#0#49978#0" expanded="true" />
                 <element signature="imports" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="KeyboardSwitcher.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="KeyboardSwitcher.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/android/inputmethod/keyboard/KeyboardSwitcher.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="374" column="63" selection-start="14342" selection-end="14342" vertical-scroll-proportion="0.5263158">
+            <state line="374" column="63" selection-start="14342" selection-end="14342" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -100,7 +100,7 @@
       <file leaf-file-name="LatinIME.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/android/inputmethod/latin/LatinIME.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="207" column="47" selection-start="9055" selection-end="9055" vertical-scroll-proportion="0.0">
+            <state line="204" column="30" selection-start="8908" selection-end="8926" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="class#UIHandler#0;class#LatinIME#0" expanded="false" />
                 <element signature="method#onCreate#0;class#LatinIME#0" expanded="false" />
@@ -137,9 +137,9 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
+        <option value="$PROJECT_DIR$/src/com/android/inputmethod/keyboard/KeyboardSwitcher.java" />
         <option value="$PROJECT_DIR$/src/com/android/inputmethod/latin/LatinIME.java" />
         <option value="$PROJECT_DIR$/src/com/android/inputmethod/keyboard/LatinKeyboardView.java" />
-        <option value="$PROJECT_DIR$/src/com/android/inputmethod/keyboard/KeyboardSwitcher.java" />
       </list>
     </option>
   </component>
@@ -546,7 +546,7 @@
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="JetGradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32729805" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32729805" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39972144" sideWeight="0.49712643" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
@@ -561,7 +561,7 @@
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.23635058" sideWeight="0.67270195" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32729805" sideWeight="0.49712643" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32729805" sideWeight="0.49712643" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
@@ -696,9 +696,16 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/android/inputmethod/keyboard/KeyboardSwitcher.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="374" column="63" selection-start="14342" selection-end="14342" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/android/inputmethod/latin/LatinIME.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="207" column="47" selection-start="9055" selection-end="9055" vertical-scroll-proportion="0.0">
+        <state line="204" column="30" selection-start="8908" selection-end="8926" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="class#UIHandler#0;class#LatinIME#0" expanded="false" />
             <element signature="method#onCreate#0;class#LatinIME#0" expanded="false" />
@@ -708,18 +715,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/android/inputmethod/keyboard/LatinKeyboardView.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="676" column="17" selection-start="27503" selection-end="27503" vertical-scroll-proportion="-5.5">
+        <state line="815" column="27" selection-start="32377" selection-end="32377" vertical-scroll-proportion="0.68604654">
           <folding>
-            <element signature="e#0#48820#0" expanded="true" />
+            <element signature="e#0#49978#0" expanded="true" />
             <element signature="imports" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/android/inputmethod/keyboard/KeyboardSwitcher.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="374" column="63" selection-start="14342" selection-end="14342" vertical-scroll-proportion="0.5263158">
-          <folding />
         </state>
       </provider>
     </entry>
