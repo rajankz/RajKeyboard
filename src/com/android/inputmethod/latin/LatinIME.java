@@ -82,7 +82,7 @@ import java.util.Locale;
 /**
  * Input method implementation for Qwerty'ish keyboard.
  */
-public class LatinIME extends InputMethodService implements KeyboardActionListener,
+public class LatinIME extends InputMethodService implements KeyboardActionListener, LatinKeyboardView.OnGesturePerformedListener,
         SuggestionsView.Listener, TargetApplicationGetter.OnTargetApplicationKnownListener {
     private static final String TAG = LatinIME.class.getSimpleName();
     private static final boolean TRACE = false;
@@ -200,6 +200,14 @@ public class LatinIME extends InputMethodService implements KeyboardActionListen
     private AlertDialog mOptionsDialog;
 
     public final UIHandler mHandler = new UIHandler(this);
+
+    @Override
+    public void onGesturePerformed(int LR, int UD) {
+        LR=UD=-1;
+        final InputConnection ic = getCurrentInputConnection();
+        ic.beginBatchEdit();
+        ic.commitText(null,-5);
+    }
 
     public static class UIHandler extends StaticInnerHandlerWrapper<LatinIME> {
         private static final int MSG_UPDATE_SHIFT_STATE = 1;

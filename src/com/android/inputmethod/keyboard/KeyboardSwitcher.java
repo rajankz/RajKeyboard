@@ -371,6 +371,8 @@ public class KeyboardSwitcher implements KeyboardState.SwitchActions {
 
         mKeyboardView = (LatinKeyboardView) mCurrentInputView.findViewById(R.id.keyboard_view);
         mKeyboardView.setKeyboardActionListener(mLatinIME);
+        //rajankz
+        mKeyboardView.addOnGesturePerformedListener(mLatinIME);
         if (mForceNonDistinctMultitouch) {
             mKeyboardView.setDistinctMultitouch(false);
         }

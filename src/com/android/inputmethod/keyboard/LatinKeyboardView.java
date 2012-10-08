@@ -36,9 +36,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodSubtype;
 import android.widget.PopupWindow;
 
+import android.widget.TextView;
 import com.android.inputmethod.accessibility.AccessibilityUtils;
 import com.android.inputmethod.accessibility.AccessibleKeyboardViewProxy;
 import com.android.inputmethod.keyboard.PointerTracker.DrawingProxy;
@@ -54,6 +56,8 @@ import com.android.inputmethod.latin.Utils;
 import com.android.inputmethod.latin.Utils.UsabilityStudyLogUtils;
 import com.android.inputmethod.latin.define.ProductionFlag;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Locale;
 import java.util.WeakHashMap;
 
@@ -122,17 +126,20 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
     //rajankz
     int pointerIndex1, pointerIndex2;
     float startX1, startX2, startY1, startY2, endX1, endX2, endY1, endY2;
-    final float MOVE_THRESHOLD = 10.0f;
+    final float MOVE_THRESHOLD = 5.0f;
     float diffX1,diffY1,diffX2,diffY2;
 
     private enum LR{LEFT,RIGHT};
     private enum UD{UP, DOWN};
     private String mvDir;
+    private final ArrayList<OnGesturePerformedListener> mOnGesturePerformedListeners =
+            new ArrayList<OnGesturePerformedListener>();
 
     boolean inGestureMode = false;
     boolean previouslyWasGesturing = false;
 
     private static final Paint dimPaint = new Paint();
+    private boolean mHandleGestureActions;
 
 
     private static class KeyTimerHandler extends StaticInnerHandlerWrapper<LatinKeyboardView>
@@ -660,13 +667,28 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
         return mOldPointerCount;
     }
 
+    public void addOnGesturePerformedListener(OnGesturePerformedListener listener) {
+        mOnGesturePerformedListeners.add(listener);
+        if (mOnGesturePerformedListeners.size() > 0) {
+            mHandleGestureActions = true;
+        }
+    }
+
+    private void fireOnGesturePerformed() {
+        final ArrayList<OnGesturePerformedListener> actionListeners = mOnGesturePerformedListeners;
+        final int count = actionListeners.size();
+        for (int i = 0; i < count; i++) {
+            actionListeners.get(i).onGesturePerformed(-1, -1);
+        }
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent me) {
         final int action = me.getAction();
         String actionStr;
         int totalPointers = me.getPointerCount();
-        if(totalPointers<2)
-            return processMotionEvent(me);
+        //if(totalPointers<2)
+        //    return processMotionEvent(me);
 
         //int pointerIndex = (action & me.getActionIndex());
         //int pointerIndex2= (action & MotionEvent.ACTION_POINTER_INDEX_MASK)
@@ -679,15 +701,19 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
 
 
         switch(action & MotionEvent.ACTION_MASK){
-            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_DOWN:{
+                inGestureMode = false;
+                previouslyWasGesturing = false;
+                break;
+            }
             case MotionEvent.ACTION_POINTER_DOWN:
             {
-                previouslyWasGesturing = false;
-                if(totalPointers==1)  {
-                    //pointerIndex1 = (action & me.getActionIndex());
-                    return processMotionEvent(me);
-                }
-                else if(totalPointers == 2){
+                //previouslyWasGesturing = false;
+                //if(previouslyWasGesturing)
+                //    inGestureMode = true;
+
+
+                if(totalPointers == 2){
                     //pointerIndex2= (action & MotionEvent.ACTION_POINTER_INDEX_MASK)
                     //        >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
                     startX1 = me.getX(0);
@@ -696,7 +722,8 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
                     startY2 = me.getY(1);
                     inGestureMode = true;
                     closing();
-                    dimEntireKeyboard(false);
+                    //invalidate();
+                    //dimEntireKeyboard(false);
                 }
                 invalidate();
                 return true;
@@ -704,6 +731,8 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
             case MotionEvent.ACTION_MOVE:{
                 if(totalPointers < 2)
                     break;
+
+                //InputConnection ic =
                 //Log.d("LKV","x1="+startX1+" y1="+startY1+" x2="+startX2+" y2="+startY2);
                 endX1=me.getX(0);
                 endX2=me.getX(1);
@@ -748,18 +777,25 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
                 startY2 = endY2;
 
                 Log.d("LKV",mvDir);
+                fireOnGesturePerformed();
 
                 return true;
 
             }
             case MotionEvent.ACTION_UP:
-                if(previouslyWasGesturing){
+                if(!previouslyWasGesturing){
+                    return processMotionEvent(me);
+                }
+                else{
+                    inGestureMode = false;
+                    //previouslyWasGesturing = false;
                     closing();
+                    //invalidateAllKeys();
                     invalidate();
-                    previouslyWasGesturing = false;
                     return true;
                 }
-                return processMotionEvent(me);
+                //invalidate();
+                //return processMotionEvent(me);
 
             case MotionEvent.ACTION_POINTER_UP:
             {
@@ -769,8 +805,8 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
                 if(inGestureMode){
                     previouslyWasGesturing = true;
                     //inGestureMode = false;
-                    //closing();
-                    //invalidate();
+                    closing();
+                    invalidate();
                     return true;
                 }
                 //}else{
@@ -781,10 +817,10 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
 
         }
 
-        if(previouslyWasGesturing){
+        /*if(previouslyWasGesturing){
             closing();
             invalidate();return true;
-        }
+        } */
         return processMotionEvent(me);
     }
 
@@ -948,7 +984,7 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
 
 
     private void init(){
-        setWillNotDraw(false);
+        //setWillNotDraw(false);
 
         dimPaint.setColor((int) (0.5 * 0xFF) << 24);
         //sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this.getContext());
@@ -960,7 +996,10 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
         super.draw(c);
         if(inGestureMode) {
             c.drawRect(0,0,getWidth(),getHeight(), dimPaint);
+        }else{
+            c.restore();
         }
+
         /*Utils.GCUtils.getInstance().reset();
         boolean tryGC = true;
         for (int i = 0; i < Utils.GCUtils.GC_TRY_LOOP_MAX && tryGC; ++i) {
@@ -1169,5 +1208,9 @@ public class LatinKeyboardView extends KeyboardView implements PointerTracker.Ke
         }
         final Locale locale = SubtypeLocale.getSubtypeLocale(subtype);
         return StringUtils.toTitleCase(locale.getDisplayLanguage(locale), locale);
+    }
+
+    public static interface OnGesturePerformedListener {
+        void onGesturePerformed(int LR, int UD);
     }
 }
